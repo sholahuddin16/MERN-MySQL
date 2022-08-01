@@ -1,0 +1,311 @@
+front-end
+
+#pastikan sudah terupdate nodejs dan npm nya
+
+# create react js
+buat folder front-end
+npx create-react-app ./
+
+# install package yg dibutuhkan (bulma untuk style)
+npm install react-router-dom axios bulma
+
+# install extension bulma & es7
+
+# ubah struktur src reactjs nya
+hapus dan tinggalkan app.js & index.js
+
+# app.js
+function App() {
+  return (
+    <div className="container">
+      <div class="columns">
+        <div class="column is-half is-offset-one-quarter">
+          <h2>Welcome</h2>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default App;
+
+
+# upload bulma di index.js
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App';
+import "bulma/css/bulma.css";
+
+ReactDOM.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+  document.getElementById('root')
+);
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+1. buat struktur folder
+#buat folder components yangberisi AddProduct.js EditProduct.js ProductList.js
+
+a. ProductList.js
+import { useState, useEffect } from 'react'
+import axios from "axios";
+import { Link } from 'react-router-dom';
+
+const ProductList = () => {
+    const [products, setProducts] = useState([]);  <note : ini state berfungsi untuk mengambil product >
+
+    useEffect(() => {
+        getProduct();
+    }, []); <note: memanggil fuction getProduct didalam useEffect hook >
+
+    const getProducts = async () => {
+        const response = await axios.get('http://localhost:5000/products');
+        setProducts(response.data);
+        console.log(response.data);
+    } <note : method untuk menfetching data dari API>    
+
+    return (
+        <div>
+            <Link to="/add" className='button is-primary mt-2'>Add New Product</Link>
+            <table className="table is-striped is-fullwidth">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Title</th>
+                        <th>Price</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {products.map((products, index) => (   <note: connect api value >
+                        <tr key={product.id}> (       <note: primarykey>
+                            <td>{ index + 1}</td>
+                            <td>{ products.title }</td>
+                            <td>{ products.price }</td>
+                            <td>
+                                <button className="button is-small is-info">Edit</button>
+                                <button className="button is-small is-danger">Delete</button>
+                            </td>
+                        </tr>
+                    ))}
+            </table>
+        </div>
+    )
+}
+
+export default ProductList
+
+a. lanjut ke  cara no 2 dulu buat test apakah berhasil
+
+b. AddProduct
+import React from 'react'
+import axios from "axios";
+
+const AddProduct = () => {
+  return (
+    <div>
+            <form >
+                <div className="field">
+                    <label className="label">Title</label>
+                    <input className="input" type="text" placeholder="Title" />
+                </div>
+                <div className="field">
+                    <label className="label">Price</label>
+                    <input className="input" type="text" placeholder="Price" />
+                </div>
+                <div className="field">
+                    <button className="button is-primary mt-2">Save</button>
+                </div>
+            </form>
+        </div>
+
+    <div>
+  )
+}
+
+export default AddProduct
+
+b. connect ke api backend create untuk menambahkan product dan tambahkan beberapa function dan event
+
+import { useState } from 'react';
+import { useHistory } from 'react-router-dom';
+import axios from 'axios';
+
+  const [title, setTitle] = useState('');
+  const [price, setPrice] = useState('');
+  
+  const history = useHistory();
+
+    const saveProduct = async (e) => {
+        e.preventDefault();
+        await axios.post('http://localhost:5000/products',{
+            title: title,
+            price: price
+        });
+        history.push("/");
+    }
+
+return (
+        <div>
+            <form onSubmit={ saveProduct }>
+                <div className="field">
+                    <label className="label">Title</label>
+                    <input 
+                        className="input"
+                        type="text"
+                        placeholder="Title"
+                        value={ title }
+                        onChange={ (e) => setTitle(e.target.value) }
+                    />
+                </div>
+                <div className="field">
+                    <label className="label">Price</label>
+                    <input 
+                        className="input"
+                        type="text"
+                        placeholder="Price"
+                        value={ price }
+                        onChange={ (e) => setPrice(e.target.value) }
+                    />
+                </div>               
+                <div className="field">
+                    <button className="button is-primary mt-2">Save</button>
+                </div>
+            </form>
+        </div>
+    )
+
+c. EditProduct.js copy semua code dari AddProduct.js dan edit AddProduct menjadi EditProduct
+
+import { useState } from 'react';
+import axios from "axios";
+import { useHistory } from 'react-router-dom';
+
+const EditProduct= () => {
+    const [title, setTitle] = useState('');
+    const [price, setPrice] = useState('');
+    const history = useHistory();
+
+    const saveProduct = async (e) => {
+        e.preventDefault();
+        await axios.post('http://localhost:5000/products',{
+            title: title,
+            price: price
+        });
+        history.push("/");
+    }
+
+    return (
+        <div>
+            <form onSubmit={ saveProduct }>
+                <div className="field">
+                    <label className="label">Title</label>
+                    <input 
+                        className="input"
+                        type="text"
+                        placeholder="Title"
+                        value={ title }
+                        onChange={ (e) => setTitle(e.target.value) }
+                    />
+                </div> 
+                <div className="field">
+                    <label className="label">Price</label>
+                    <input 
+                        className="input"
+                        type="text"
+                        placeholder="Price"
+                        value={ price }
+                        onChange={ (e) => setPrice(e.target.value) }
+                    />
+                </div>
+                <div className="field">
+                    <button className="button is-primary mt-2">Update</button>
+                </div>
+            </form>
+        </div>
+    )
+}
+
+export default EditProduct
+
+c. tambahkan package useEffect dan useParams & buat function arrow useEffect
+
+import { useState, useEffect } from 'react';
+import { useHistory, useParams } from 'react-router-dom';
+
+const { id } = useParams();
+
+useEffect(() => {
+        getProductById();
+    }, []);
+
+c. buat function untuk memanggil product by id
+
+const getProductById = async () => {
+        const response = await axios.get(`http://localhost:5000/products/${id}`);
+        setTitle(response.data.title);
+        setPrice(response.data.price);
+    }
+
+c. ubah function saveProduct yg tadi post=create ke updateProduct menjadi put=update note put dan patch juga bisa tergantung kalian set dibackend
+const updateProduct = async (e) => {
+        e.preventDefault();
+        await axios.patch(`http://localhost:5000/products/${id}`,{
+            title: title,
+            price: price,
+        });
+        history.push("/");
+    }
+
+<form onSubmit={ updateProduct }>
+
+c. edit button edit di ProductList.js dengan Link
+
+<Link to={`/edit/${products.id}`} className="button is-small is-info">Edit</Link>
+
+d. membuat method deleteProduct
+ const deleteProduct = async (id) => {
+        const response = await axios.delete(`http://localhost:5000/product/${id}`);
+        getProducts(response.data);
+    }
+
+d. membuat function delete di ProductList.js
+<button onClick={ () => deleteProduct(products.id) } className="button is-small is-danger">Delete</button>
+
+
+2. buat routing bercabang di aap.js menggunakan { BrowserRouter as Router, Route, Switch } dari react-router-dom
+
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import AddProduct from "./components/AddProduct.js";
+import EditProduct from "./components/EditProduct.js";
+import ProductList from "./components/ProductList.js";
+
+function App() {
+  return (
+    <Router>
+      <div className="container">
+        <div className="coluumns">
+          <div className="column is-half is-offset-one-quarter">
+            <Switch>
+              <Route exact path="/">
+                <ProductList />
+              </Route>
+              <Route path="/add">
+                <AddProduct />
+              </Route>
+              <Route path="/edit/:id">
+                <EditProduct />
+              </Route>
+            </Switch>
+          </div>
+        </div>
+      </div>
+    </Router>
+  );
+}
+
+export default App;
+
+

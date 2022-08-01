@@ -1,0 +1,204 @@
+Back-End
+
+1. create express app
+npm init
+
+2. install depedence
+npm install express mysql2 sequelize cors
+
+3. install nodemon
+npm install --save-dev nodemon
+
+4. tambakan "type": "module", di package.json
+"type": "module"
+
+5. buat basic entrypoint default index.js
+import express from "express";
+
+const app = express();
+
+app.get('/', (req, res) => {
+    res.send('Welcome');
+})
+
+app.listen(5000, () => console.log('Server running port 5000'));
+
+6. buat struktur folder
+“config/database.js”, untuk connection ke database 
+“controllers/product.js”, beriisi semua logic dari back-end
+“models/product_Models.js”, untuk membuat table dari express meggunakan orm Sequelize
+“routes/index.js”, berisi semua route dari back-end
+
+7. buat file config/database.js untuk mengkoneksikan database ke express
+
+import { Sequelize } from "sequelize";
+
+const db = new Sequelize('mern_db', 'root', '', {
+    host: "localhost",
+    dialect: "mysql"    
+});
+
+db.sync({}); //auto singkronasi ke database
+
+export default db;
+
+8. test apakah berhasil terkoneksi database ke project back-end dengan mengimport database.js ke entrypoint index.js
+import express from "express";
+import db from "./config/database.js";
+import cors from "cors";
+
+const app = express();
+
+try {
+    await db.authenticate();
+    console.log('Database connected....');
+} catch (error) {
+    console.error('Connection error:', error);
+}
+
+app.use(cors());
+app.get('/', (req, res) => {
+    res.send('Welcome');
+})
+
+app.listen(5000, () => console.log('Server running port 5000'));
+
+9. membuat routes terpisah dari entry point
+
+import express from "express";
+
+const router = express.Router();
+
+router.get('/', (req, res) => {
+    res.send('Welcome');
+})
+
+export default router;
+
+10. import routes/index.js ke entry point index.js
+import productRoutes from "./routes/index.js";
+
+app.use('/products', productRoutes); //panggil dengan seperti ini dan bisa juga di ubah urlnya
+
+11. pisahkan logig di routes/index.js ke controllers/Products.js
+
+export const getAllProducts =(req, res) => {
+    res.send('Welcome');
+}
+
+12. import logic ke routes/index.js
+
+import { getAllProducts } from "../controllers/Products.js";
+
+router.get('/', getAllProducts); // dan panggil dengan seperti ini
+
+13. buat models/product_Models.js untuk membuat table dari express meggunakan orm Sequelize
+
+import { Sequelize } from "sequelize";
+import db from "../config/database.js";
+
+const { DataTypes } = Sequelize;
+
+const Products =  db.define('products',{
+    title:{
+        type: DataTypes.STRING
+    },
+    price:{
+        type: DataTypes.DOUBLE
+    }
+},{
+    freezeTableName: true
+});
+
+export default Products;
+
+14. buat function crud di back-end/controllers/Products.js
+
+a. read
+export const getAllProducts = async (req, res) => {
+    try {
+        const products = await Products.findAll();
+        res.json(products);
+    } catch (error) {
+        res.json({ message: error.message });
+    }
+}
+
+b. create
+# controller logic create
+export const createProduct = async (req, res) => {
+    try {
+        await Products.create(req.body);
+        res.json({
+            "message": "Product Created"
+        })
+    } catch (error) {
+        res.json({ message: error.message });
+    }
+}
+
+# tambahkan routing baru di routea/index.js dan gunakan method post di route untuk create product
+import { createProduct, getAllProducts } from "../controllers/Products.js"; //otomatis ke import
+
+router.post('/', createProduct); //ketik kode ini otomatis yg atas ke import logicnya
+
+# tambahkan code ini di entry point back-end/index.js untuk bisa menginput data menggunakan text JSON
+app.use(express.json());
+
+c. read by id
+# controller logic read by id
+export const getAProductsById = async (req, res) => {
+    try {
+        const products = await Products.findAll({
+            where: {
+                id: req.params.id
+            }
+        });
+        res.json(products[0]);
+    } catch (error) {
+        res.json({ message: error.message });
+    }
+}
+
+# tambahkan routing baru di routea/index.js dan gunakan method get di route untuk read perbedan denggan getAllProduct disini read by id
+router.get('/:id', getAProductsById)
+
+d. update
+# controller logic update berdasarkan primaryKey = id 
+export const updateProduct = async (req, res) => {
+    try {
+        await Products.update(req.body, {
+            where: {
+                id: req.params.id
+            }
+        });
+        res.json({
+            "message": "Product Update"
+        })
+    } catch (error) {
+        res.json({ message: error.message });
+    }
+}
+
+# tambahkan routing baru di routea/index.js dan gunakan method patch di route untuk update produck berdasarkan primarykey
+router.patch('/:id', updateProduct);
+
+# Delete
+#controller logic delete berdasarkan primaryKey = id
+export const deleteProduct = async (req, res) => {
+    try {
+        await Products.destroy({
+            where: {
+                id: req.params.id
+            }
+        });
+        res.json({
+            "message": "Product Deleted"
+        })
+    } catch (error) {
+        res.json({ message: error.message });
+    }
+}
+
+# tambahkan routing baru di routea/index.js dan gunakan method delete di route untuk delete produck berdasarkan primarykey
+router.patch('/:id', deleteProduct);
