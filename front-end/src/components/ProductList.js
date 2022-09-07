@@ -24,26 +24,70 @@ const ProductList = () => {
 
 
     return (
+
         <div className="content-wrapper">
-            <div class="hero-body">
-                <div class="container">
-                    <div class="card">
-                        <div class="card-content">
-                            <div class="content">
-                                <div class="control has-icons-left has-icons-right">
-                                    <input class="input is-large" type="search" />
-                                    <span class="icon is-medium is-left">
-                                        <i class="fa fa-search"></i>
-                                    </span>
-                                    <span class="icon is-medium is-right">
-                                        <i class="fa fa-empire"></i>
-                                    </span>
-                                </div>
+            <div id="navbarBasicExample" class="navbar-menu">
+                <div class="navbar-start">
+                    <div class="navbar-brand">
+                        <a class="navbar-item" href="https://bulma.io">
+                            <img src="https://bulma.io/images/bulma-logo.png" width="112" height="28" />
+                        </a>
+                    </div>
+
+                    <a class="navbar-item">
+                        Home
+                    </a>
+
+                    <a class="navbar-item">
+                        Documentation
+                    </a>
+
+                    <div class="navbar-item has-dropdown is-hoverable">
+                        <a class="navbar-link">
+                            More
+                        </a>
+
+                        <div class="navbar-dropdown">
+                            <a class="navbar-item">
+                                About
+                            </a>
+                            <a class="navbar-item">
+                                Jobs
+                            </a>
+                            <a class="navbar-item">
+                                Contact
+                            </a>
+                            <hr class="navbar-divider" />
+                            <a class="navbar-item">
+                                Report an issue
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="navbar-end">
+                    <div class="navbar-item">
+                        <div class="level-item">
+                            <div class="field has-addons">
+                                <p class="control">
+                                    <input class="input" type="text" placeholder="Cari menu" />
+                                </p>
+                                <p class="control">
+                                    <button class="button">
+                                        Search
+                                    </button>
+                                </p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <div class="hero-body">
+                <Link to="/add" className="button is-primary is-large mt-2">Add New</Link>
+            </div>
+
             <section class="container">
                 <div class="columns">
                     {products.map(products => {
